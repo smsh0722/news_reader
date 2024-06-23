@@ -67,9 +67,7 @@ class NewsDetailActivity : AppCompatActivity() {
                     </script>
                 </head>
                 <body>
-                    <h1>${news.title}</h1>
-                    <p>${news.description}</p>
-                    <iframe src="${news.link}" width="100%" height="80%" style="border:none;"></iframe>
+                    <iframe src="${news.originallink}" width="100%" height="100%" style="border:none;"></iframe>
                 </body>
             </html>
         """

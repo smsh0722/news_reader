@@ -5,25 +5,35 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.room.Query
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: NewsRepository
 
-    val allNews: LiveData<List<News>>
+    private val _searchResults = MutableLiveData<List<News>>()
+    val searchResults: LiveData<List<News>> = _searchResults
 
     init {
         val newsDao = NewsDatabase.getDatabase(application).newsDao()
         val newsApiService = NewsApiService.create()
         repository = NewsRepository(newsDao, newsApiService)
-        allNews = repository.allNews
     }
 
-    fun searchNews( query: String, callback: (List<News>)->Unit ){
+    fun searchNews(query: String) {
         viewModelScope.launch {
-            val result = repository.searchNews(query)
-            callback(result)
+            try {
+                val newsList = withContext(Dispatchers.IO) {
+                    repository.searchNews(query)
+                }
+                _searchResults.postValue(newsList)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _searchResults.postValue(emptyList())
+            }
         }
     }
 }

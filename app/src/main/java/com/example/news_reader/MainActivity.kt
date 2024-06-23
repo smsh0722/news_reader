@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ class MainActivity : AppCompatActivity() {
         val ET_search = findViewById<EditText>(R.id.ET_search_main)
         val btn_search = findViewById<ImageButton>(R.id.btn_search_main)
         val btn_myFolder = findViewById<ImageButton>(R.id.btn_myFolder_main)
+        val btn_reset = findViewById<ImageButton>(R.id.btn_restart_main)
         val LV_rankingNews = findViewById<ListView>(R.id.LV_resultNews_main)
         val items_news = mutableListOf<News>()
         val adapter = newsAdapter(this, items_news )
@@ -51,37 +53,38 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("query", query)
             startActivity(intent)
         }
+        btn_reset.setOnClickListener{
+            searchTrends( items_news, adapter )
+        }
         /*
         btn_myFolder.setOnClickListener {
 
-        }
-
-        LV_rankingNews.setOnClickListener {
-
         }*/
+
+        LV_rankingNews.setOnItemClickListener { adapterView, view, position, l ->
+            val selectedNews = viewModel.searchResults.value?.get(position)
+            selectedNews?.let{
+                val intent = Intent(this, NewsDetailActivity::class.java)
+                intent.putExtra("news", it)
+                startActivity(intent)
+            }
+        }
     }
 
-    fun searchTrends( items_news: MutableList<News>, adapter: newsAdapter ){
+    private fun searchTrends( items_news: MutableList<News>, adapter: newsAdapter ){
+        items_news.clear()
 
-        CoroutineScope(Dispatchers.Main).launch {
-            items_news.clear()
-            //GetTrends
-            val trendsKeywords = withContext(Dispatchers.IO){
-                googleTrendsVM.getGTKeyworld()
+        val trendsKeywords = googleTrendsVM.getGTKeyworld()
+
+        viewModel.searchResults.observe(this, Observer { searchResults ->
+            if (searchResults != null && searchResults.isNotEmpty()) {
+                items_news.addAll(searchResults)
+                adapter.notifyDataSetChanged()
             }
-            // Get News for each trends keywords
-            for ( keyword in trendsKeywords ){
-                Log.d("keyword: ", keyword)//Debug
-                viewModel.searchNews(keyword){ newsList->
-                    val a = 1
-                    if ( newsList.isNotEmpty() ){
-                        val news = newsList.first()
-                        items_news.add(news)
-                    }
-                }
-            }
-            // update adapter
-            adapter.notifyDataSetChanged()
+        })
+
+        for (query in trendsKeywords) {
+            viewModel.searchNews(query)
         }
     }
 }
