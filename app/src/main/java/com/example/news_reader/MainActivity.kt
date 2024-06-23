@@ -2,6 +2,10 @@ package com.example.news_reader
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.webkit.JavascriptInterface
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ListView
@@ -67,7 +71,9 @@ class MainActivity : AppCompatActivity() {
             }
             // Get News for each trends keywords
             for ( keyword in trendsKeywords ){
+                Log.d("keyword: ", keyword)//Debug
                 viewModel.searchNews(keyword){ newsList->
+                    val a = 1
                     if ( newsList.isNotEmpty() ){
                         val news = newsList.first()
                         items_news.add(news)

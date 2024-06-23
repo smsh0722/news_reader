@@ -31,6 +31,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <meta-data android:name="android.support.SQLITE_LOCALE"
+            android:value="ko_KR.UTF-8" />
     </application>
 
 </manifest>
