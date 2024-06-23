@@ -20,9 +20,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         allNews = repository.allNews
     }
 
-    fun searchNews( query: String ){
+    fun searchNews( query: String, callback: (List<News>)->Unit ){
         viewModelScope.launch {
-            repository.searchNews(query)
+            val result = repository.searchNews(query)
+            callback(result)
         }
     }
 }

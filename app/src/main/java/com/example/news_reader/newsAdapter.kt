@@ -1,6 +1,7 @@
 package com.example.news_reader
 
 import android.content.Context
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,9 +29,10 @@ class newsAdapter (val context: Context, val items: List<News> ):BaseAdapter(){
         val pubTime = generatedView.findViewById<TextView>(R.id.textView_news_time)
         val description = generatedView.findViewById<TextView>(R.id.textView_news_description)
 
-        title.text = items[position].title
-        pubTime.text = items[position].pubDate
-        description.text = items[position].description
+        val news = items[position]
+        title.text = Html.fromHtml(news.title).toString()
+        pubTime.text = news.pubDate
+        description.text = Html.fromHtml(news.description).toString()
 
         return generatedView
     }
